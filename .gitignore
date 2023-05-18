@@ -1,160 +1,466 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+import pygame.font
+from abc import ABC, abstractmethod
+import sys
+import pygame
 
-# C extensions
-*.so
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+class Pantalla():
+  def fondo(self,fondo,animal,x,y):
+      pantalla.blit(fondo, [0,0])
+      pantalla.blit(animal, [x,y])
+      pygame.display.flip()
+      tiempo.tick()
+  
+  
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+class ImageButton:
+    def _init_(self, image_path, position, function=None):
+        pygame.init()
+        self.accion=""
+        self.image = image_path
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = position
+        self.function = function
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+          if self.function:
+              self.function()
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
 
-# Translations
-*.mo
-*.pot
+class elegir:
+  def _init_(self):
+    self.tipo=""
+    self.nombre=""
+    self.escoger=True
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+  def perro(self):
+    self.tipo="perro"
+    self.nombre="cabo"
+    self.escoger=False
+    
+        
+  def pinguino(self):
+    self.tipo="pinguino"
+    self.nombre="samy"
+    self.escoger=False
 
-# Flask stuff:
-instance/
-.webassets-cache
 
-# Scrapy stuff:
-.scrapy
+class Tamagotchi(ABC,Pantalla):
+    def _init_(self, name, age):
+        self.name = name
+        self.age = age
+        self.hunger = 50
+        self.energy = 50
+        self.happiness = 50
+        
+        
+    @abstractmethod
+    def feed(self):
+        pass
 
-# Sphinx documentation
-docs/_build/
+    @abstractmethod
+    def sleep(self):
+        pass
 
-# PyBuilder
-.pybuilder/
-target/
+    @abstractmethod
+    def play(self):
+        pass
 
-# Jupyter Notebook
-.ipynb_checkpoints
+    
+  
+    def check_status(self):
 
-# IPython
-profile_default/
-ipython_config.py
+        if self.hunger <= 0 or self.energy <= 0:
+            fuente = pygame.font.SysFont("segoe print", 40)
+            muerte=0
+            while muerte<=3:
+              estado = fuente.render((f"{pet.name} ha muerto!"),True, white)
+              video.fondo(pet.fondo_morir,pet.jugar_1,2000,0)
+              pygame.time.wait(500)
+              pantalla.blit(estado,[20,90])
+              pygame.time.wait(500)
+              muerte+=1
+            exit()
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
+        if self.hunger <= 25:
+            fuente = pygame.font.SysFont("segoe print", 40)
+            estado2 = fuente.render((f"{self.name} tiene hambre. Alimenta a {self.name} ahora!"),True, white)
+            pantalla.blit(estado2,[20,90])
+        if self.energy <= 25:
+            fuente = pygame.font.SysFont("segoe print", 40)
+            estado3 = fuente.render((f"{self.name} está cansado. lleva a dormir a  {self.name}!"),True, white)
+            pantalla.blit(estado3,[20,110])
+          
+        if self.happiness <= 25:
+            fuente = pygame.font.SysFont("segoe print", 40)
+            estado3 = fuente.render((f"{self.name} está triste. Juega con {self.name} now!"),True, white)
+            pantalla.blit(estado3,[20,90])
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
 
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
+    def is_happy(self):
+        
+        return self.happiness >= 50
 
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/#use-with-ide
-.pdm.toml
+    def _str_(self):
+      return f"{self.name} ({self.age} años)\nHambre: {self.hunger}\nEnergia:{self.energy}\nFelicidad: {self.happiness}\n"
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
+class Pinguino(Tamagotchi):
+    def _init_(self, name, pantalla):
+        super()._init_(name, 0)
+        self.boton_comer= pygame.image.load("comer_boton_pinguino.png").convert_alpha()
+        self.boton_jugar= pygame.image.load("jugar_boton_pinguino.png").convert_alpha()
+        self.boton_dormir= pygame.image.load("dormir_boton_pinguino.png").convert_alpha()
+        self.boton_envejecer= pygame.image.load("boton_envejecer_pinguino.png").convert_alpha()
+        self.fondo_morir= pygame.image.load("fondo_morir_pingui.png").convert()
+        self.fondo_normal= pygame.image.load("fondo1.png").convert()
+        self.fondo_comer= pygame.image.load("fondo_comer.png").convert()
+        self.fondo_dormir= pygame.image.load("fondo_dormir_pinguino.png").convert()
+        self.fondo_jugar_1= pygame.image.load("jugar1.png").convert()
+        self.fondo_jugar_2= pygame.image.load("jugar2.png").convert()
+        self.fondo_jugar_3= pygame.image.load("jugar3.png").convert()
+        self.fondo_jugar_4= pygame.image.load("jugar4.png").convert()
+        self.jugar_1=pygame.image.load("pin_jugar_1.png").convert_alpha()
+        self.jugar_2=pygame.image.load("pin_jugar_2.png").convert_alpha()
+        self.x=100
+        self.y=100
+        self.image_happy= pygame.image.load("pinguino_normal.png").convert_alpha()
+        self.image_normal = pygame.image.load("pinguino_normal.png").convert_alpha()
+        self.image_eat_1 = pygame.image.load("comer_1.png").convert_alpha()
+        self.image_eat_2 = pygame.image.load("comer_2.png").convert_alpha()
+        self.dormir_1= pygame.image.load("dormir1_pinguino.png").convert_alpha() 
+        self.dormir_2= pygame.image.load("dormir2_pinguino.png").convert_alpha() 
+        self.envejecer1=pygame.image.load("envejecer1_pinguino.png").convert_alpha() 
+        self.envejecer2=pygame.image.load("envejecer2_pinguino.png").convert_alpha() 
+        self.triste=pygame.image.load("pingui_triste.png").convert_alpha() 
+        
+      
+    def sleep(self):
+        self.x=20
+        self.y=140
+        self.hunger -= 5
+        self.energy += 10
+        self.happiness += 5
+        jugar=0
+        while jugar<1:
+          video.fondo(pet.fondo_dormir,pet.dormir_1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_dormir,pet.dormir_2,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_dormir,pet.dormir_1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_dormir,pet.dormir_2,pet.x,pet.y)
+          pygame.time.wait(500)
+          jugar+=1
+        self.x=100
+        self.y=100
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
+        
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
+    def play(self):
+        self.x=40
+        self.y=60
+        self.hunger -= 5
+        self.energy -= 5
+        self.happiness += 10
+        jugar=0
+        while jugar<1:
+          video.fondo(pet.fondo_jugar_1,pet.jugar_1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_jugar_2,pet.jugar_1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_jugar_3,pet.jugar_2,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_jugar_4,pet.jugar_2,pet.x,pet.y)
+          pygame.time.wait(500)
+          jugar+=1
+        self.x=100
+        self.y=100
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
 
-# SageMath parsed files
-*.sage.py
+    def feed(self):
+        self.x=60
+        self.y=80
+        self.hunger += 10
+        self.energy -= 5
+        self.happiness += 5
+        comer=0
+        
+        
+        while comer<=2:
+          video.fondo(pet.fondo_comer,pet.image_eat_1,pet.x,pet.y)
+          pygame.time.wait(200)
+          video.fondo(pet.fondo_comer,pet.image_eat_2,pet.x,pet.y)
+          pygame.time.wait(200)
+          video.fondo(pet.fondo_comer,pet.image_eat_1,pet.x,pet.y)
+          pygame.time.wait(200)
+          comer+=1
+        self.x=100
+        self.y=100
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
+        
+  
+        
+        
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+    def age_up(self):
+        self.x=300
+        self.y=150
+        self.age += 1
+        self.hunger += 10
+        self.energy -= 10
+        self.happiness -= 10
+        jugar=0
+        while jugar<1:
+          video.fondo(pet.fondo_dormir,pet.envejecer1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_dormir,pet.envejecer2,pet.x,pet.y)
+          pygame.time.wait(500)
+          jugar+=1
+        self.x=100
+        self.y=100
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
+        
+        
 
-# Spyder project settings
-.spyderproject
-.spyproject
 
-# Rope project settings
-.ropeproject
+    def is_dead(self):
+      
+      return self.hunger >= 100 or self.energy <= 0 or self.age >= 10
 
-# mkdocs documentation
-/site
+class Dog(Tamagotchi):
+    def _init_(self, name, pantalla):
+        super()._init_(name, 0)
+      
+        self.boton_comer= pygame.image.load("comer_boton_perro.png").convert_alpha()
+        self.boton_jugar= pygame.image.load("jugar_boton_perro.png").convert_alpha()
+        self.boton_dormir= pygame.image.load("dormir_boton_perro.png").convert_alpha()
+        self.boton_envejecer= pygame.image.load("boton_envejecer_perro.png").convert_alpha()
+        self.fondo_morir= pygame.image.load("fondo_morir_pingui.png").convert()
+        self.fondo_normal=pygame.image.load("fondo_perro.png").convert()
+        self.image_happy= pygame.image.load("happy.png").convert()
+        self.image_normal = pygame.image.load("happy.png").convert()
+        self.fondo_comer= pygame.image.load("fondo_p_comer.png").convert()
+        self.fondo_jugar_1= pygame.image.load("jugar_perro_fondo.png").convert()
+        self.fondo_dormir= pygame.image.load("dormir_perro_fondo.png").convert()
+        self.jugar_1=pygame.image.load("Perro_jugar1.png").convert_alpha()
+        self.jugar_2=pygame.image.load("Perro_jugar2.png").convert_alpha()
+        self.x=500
+        self.y=190
+        self.image_happy = pygame.image.load("happy.png").convert_alpha()
+        self.image_normal = pygame.image.load("happy.png").convert_alpha()
+        self.image_eat_1 = pygame.image.load("perro_comer_1.png").convert_alpha()
+        self.image_eat_2 = pygame.image.load("perro_comer_2.png").convert_alpha()
+        self.dormir_1= pygame.image.load("dormir1_perro.png").convert_alpha() 
+        self.dormir_2= pygame.image.load("dormir2_perro.png").convert_alpha() 
+        self.envejecer1=pygame.image.load("envejecer1_perro.png").convert_alpha() 
+        self.envejecer2=pygame.image.load("envejecer2_perro.png").convert_alpha() 
+        self.triste=pygame.image.load("perro_triste.png").convert_alpha() 
+    
+      
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+  
+    def sleep(self):
+        self.x=150
+        self.y=200
+        self.hunger -= 5
+        self.energy += 10
+        self.happiness += 5
+      
+        jugar=0
+        while jugar<1:
+          video.fondo(pet.fondo_dormir,pet.dormir_1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_dormir,pet.dormir_2,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_dormir,pet.dormir_1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_dormir,pet.dormir_2,pet.x,pet.y)
+          pygame.time.wait(500)
+          jugar+=1
+        self.x=500
+        self.y=190
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
+        
 
-# Pyre type checker
-.pyre/
+    def play(self):
+        self.x=200
+        self.y=250
+        self.hunger -= 5
+        self.energy -= 5
+        self.happiness += 10
+        
+        jugar=0
+        while jugar<1:
+          video.fondo(pet.fondo_jugar_1,pet.jugar_1,pet.x+10,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_jugar_1,pet.jugar_2,pet.x+50,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_jugar_1,pet.jugar_1,pet.x+90,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_jugar_1,pet.jugar_2,pet.x+120,pet.y)
+          pygame.time.wait(500)
+          jugar+=1
+        self.x=500
+        self.y=190
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
 
-# pytype static type analyzer
-.pytype/
+    def feed(self):
+        self.x=-30
+        self.y=-140
+        self.hunger += 10
+        self.energy -= 5
+        self.happiness += 5
+        comer=0
+        
+        
+        while comer<=2:
+          video.fondo(pet.fondo_comer,pet.image_eat_1,pet.x,pet.y)
+          pygame.time.wait(400)
+          video.fondo(pet.fondo_comer,pet.image_eat_2,pet.x,pet.y)
+          pygame.time.wait(400)
+          video.fondo(pet.fondo_comer,pet.image_eat_1,pet.x,pet.y)
+          pygame.time.wait(400)
+          video.fondo(pet.fondo_comer,pet.image_eat_2,pet.x,pet.y)
+          pygame.time.wait(400)
+          comer+=1  
+        self.x=500
+        self.y=190
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
+  
+        
+        
 
-# Cython debug symbols
-cython_debug/
+    def age_up(self):
+        self.x=200
+        self.y=200
+        self.age += 1
+        self.hunger += 10
+        self.energy -= 10
+        self.happiness -= 10
+        self.check_status()
+        jugar=0
+        while jugar<1:
+          video.fondo(pet.fondo_normal,pet.envejecer1,pet.x,pet.y)
+          pygame.time.wait(500)
+          video.fondo(pet.fondo_normal,pet.envejecer2,pet.x,pet.y)
+          pygame.time.wait(500)
+          jugar+=1
+        self.x=500
+        self.y=190
+        video.fondo(pet.fondo_normal,pet.image_normal,self.x,self.y)
+        self.check_status()
+  
+    def is_dead(self):
 
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+      return self.hunger >= 100 or self.energy <= 0 or self.age >= 10
+
+
+  
+pygame.init()
+white = (255,255,255)
+#fuentes
+fuente = pygame.font.SysFont("segoe print", 50)
+pantalla=pygame.display.set_mode([1000,720])
+tiempo= pygame.time.Clock()
+done=False
+
+inicio=pygame.image.load("fondo.jpg").convert()
+
+for event in pygame.event.get():
+  if event.type==pygame.QUIT:
+    done=True
+video=Pantalla()
+
+juego=elegir()
+
+inicio=pygame.image.load("fondo.jpg").convert()
+
+video.fondo(inicio,inicio,0,0)
+
+happy= pygame.image.load("escoger_perro.png").convert_alpha()
+
+happy_pingui=pygame.image.load("escoger_pingui.png").convert_alpha()
+juego
+
+bienvenida="¡Bienvenido al Tamagotchi!"
+
+boton1=ImageButton(happy, (-10, 200), function=lambda: juego.perro())
+boton2= ImageButton(happy_pingui, (510, 200), function=lambda: juego.pinguino())
+
+
+escoger=True
+while escoger==True:
+  negro = (0,0,0)
+  texto1 = fuente.render("Bienvenido Al Tamagochi, ",True, negro)
+  pantalla.blit(texto1,[240,40])
+  texto = fuente.render("Escoge entre Cabito y Samy:",True, negro)
+  pantalla.blit(texto,[220,90])
+  boton1.draw(pantalla)	
+  boton2.draw(pantalla)
+  for event in pygame.event.get():
+      boton1.handle_event(event)
+      boton2.handle_event(event)
+  escoger=juego.escoger
+  pygame.display.update()
+  
+tipo=juego.tipo
+nombre=juego.nombre
+if tipo == "perro":
+  pet = Dog(nombre,Pantalla) 
+  video.fondo(pet.fondo_normal,pet.image_normal,pet.x,pet.y)
+
+elif tipo == "pinguino":
+  pet= Pinguino(nombre,Pantalla)
+  video.fondo(pet.fondo_normal,pet.image_normal,pet.x,pet.y)
+   
+
+else:
+    print("Lo siento, no tenemos esa opción disponible")
+    quit()
+
+
+button = ImageButton(pet.boton_comer, (45, 610), function=lambda: pet.feed())
+button_2 = ImageButton(pet.boton_jugar, (315, 610), function=lambda: pet.play())
+button_3 = ImageButton(pet.boton_dormir, (175, 610), function=lambda: pet.sleep())
+button_4 = ImageButton(pet.boton_envejecer, (455, 610), function=lambda: pet.age_up())
+
+
+
+while True:
+  fuente = pygame.font.SysFont("segoe print", 40)
+  texto3 = fuente.render((f"nombre: {pet.name}"),True, white)
+  pantalla.blit(texto3,[20,10])
+  texto4 = fuente.render((f"años: {pet.age}"),True, white)
+  pantalla.blit(texto4,[20,50])
+  texto5 = fuente.render((f"Comida: {pet.hunger}"),True, white)
+  pantalla.blit(texto5,[140,50])
+  texto6 = fuente.render((f"Energia: {pet.energy}"),True, white)
+  pantalla.blit(texto6,[340,50])
+  texto7 = fuente.render((f"Felicidad: {pet.happiness}"),True, white)
+  pantalla.blit(texto7,[540,50])
+  button.draw(pantalla)
+  button_2.draw(pantalla)
+  button_3.draw(pantalla)
+  button_4.draw(pantalla)
+  for event in pygame.event.get():
+      button.handle_event(event)
+      button_2.handle_event(event)
+      button_3.handle_event(event)
+      button_4.handle_event(event)
+  if pet.is_dead():
+      video.fondo(pet.fondo_morir,pet.image_normal,2000,2000)
+       print(f"{nombre} ha muerto")
+      pygame.time.wait(100000)
+      
+  pygame.display.update()
+
